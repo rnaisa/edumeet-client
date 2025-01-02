@@ -34,7 +34,7 @@ const CountdownTimerChip = (): JSX.Element => {
 			{isEnabled && (
 				<Chip
 					sx={{
-						color: 'white',
+						color: 'black',
 						backgroundColor: backgroundColor,
 						background: `linear-gradient(to right, ${indicatorColor} ${percentage}%, ${backgroundColor} ${percentage}%)`,
 						animation: `${percentage}% blink-animation 1s infinite`,
