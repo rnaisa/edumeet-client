@@ -23,7 +23,7 @@ interface TopBarProps {
 }
 
 const StyledChip = styled(Chip)({
-	color: 'white',
+	color: 'black',
 	backgroundColor: 'rgba(128, 128, 128, 0.5)',
 });
 
