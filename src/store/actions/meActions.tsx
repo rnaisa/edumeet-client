@@ -82,6 +82,30 @@ export const setRaisedHand = (raisedHand: boolean): AppThunk<Promise<void>> => a
 };
 
 /**
+ * This thunk action sets the hive position of the client.
+ * 
+ * @param hivePosition - Hive position.
+ * @returns {AppThunk<Promise<void>>} Promise.
+ */
+export const setHivePosition = (hivePosition: { x: number, y: number }): AppThunk<Promise<void>> => async (
+	dispatch,
+	_getState,
+	{ signalingService }
+): Promise<void> => {
+	logger.debug('setHivePosition) [hivePosition:%s]', hivePosition);
+
+	try {
+		await signalingService.sendRequest('hivePosition', { hivePosition });
+
+		dispatch(meActions.setHivePosition(hivePosition));
+	} catch (error) {
+		logger.error('setHivePosition() [error:"%o"]', error);
+
+		dispatch(meActions.setHivePosition({ x: -1, y: -1 }));
+	}
+};
+
+/**
  * This thunk action sets the escape meeting state of the client.
  * 
  * @param escapeMeeting - Escape meeting.

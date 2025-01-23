@@ -11,11 +11,14 @@ const StateIndicators = ({ peerId }: StateIndicatorsProps): JSX.Element => {
 	const peer = usePeer(peerId);
 	const { micConsumer } = usePeerConsumers(peerId);
 
+	// hivework
+
 	return (
 		<>
 			{ (!micConsumer || micConsumer?.remotePaused) && <MicOff color='error' fontSize='small' /> }
 			{ micConsumer?.localPaused && <VolumeOff color='error' fontSize='small' /> }
 			{ peer?.raisedHand && <RaiseHand fontSize='small' /> }
+			<span>x: { peer?.hivePosition?.x }, y: { peer?.hivePosition?.y }</span>
 		</>
 	);
 };

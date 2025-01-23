@@ -20,6 +20,7 @@ export interface MeState {
 	canShareFiles: boolean;
 	devices: MediaDeviceInfo[];
 	raisedHand: boolean;
+	hivePosition: { x: number, y: number };
 	escapeMeeting: boolean;
 	audioMuted: boolean;
 	videoMuted: boolean;
@@ -53,6 +54,7 @@ const initialState: MeState = {
 	canTranscribe: false,
 	devices: [],
 	raisedHand: false,
+	hivePosition: { x: -1, y: -1 },
 	escapeMeeting: false,
 	audioMuted: edumeetConfig.askForMediaOnJoin ? false : true,
 	videoMuted: edumeetConfig.askForMediaOnJoin ? false : true,
@@ -113,6 +115,9 @@ const meSlice = createSlice({
 		}),
 		setRaisedHand: ((state, action: PayloadAction<boolean>) => {
 			state.raisedHand = action.payload;
+		}),
+		setHivePosition: ((state, action: PayloadAction<{ x: number, y: number }>) => {
+			state.hivePosition = action.payload;
 		}),
 		setEscapeMeeting: ((state, action: PayloadAction<boolean>) => {
 			state.escapeMeeting = action.payload;

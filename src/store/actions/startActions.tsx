@@ -8,6 +8,7 @@ import { uiActions } from '../slices/uiSlice';
 import { lock, unlock } from './permissionsActions';
 import { permissionsActions } from '../slices/permissionsSlice';
 import { setRaisedHand } from './meActions';
+import { setHivePosition } from '../../store/actions/meActions';
 import { VolumeWatcher } from '../../utils/volumeWatcher';
 import { roomSessionsActions } from '../slices/roomSessionsSlice';
 import { Logger } from '../../utils/Logger';
@@ -143,6 +144,13 @@ export const startListeners = (): AppThunk<Promise<void>> => async (
 				const settingsOpen = getState().ui.settingsOpen;
 
 				dispatch(uiActions.setUi({ settingsOpen: !settingsOpen }));
+
+				break;
+			}
+
+			case 'b': {
+
+				dispatch(setHivePosition({ x: 2, y: 5 }));
 
 				break;
 			}

@@ -18,6 +18,7 @@ export interface Peer {
 	raisedHand?: boolean;
 	raisedHandTimestamp?: number;
 	recording?: boolean;
+	hivePosition?: { x: number, y: number };
 	transcripts?: Transcript[];
 }
 
@@ -64,6 +65,7 @@ const peersSlice = createSlice({
 					raisedHand,
 					raisedHandTimestamp,
 					recording,
+					hivePosition,
 				} = action.payload;
 
 				if (displayName)
@@ -92,6 +94,8 @@ const peersSlice = createSlice({
 					peer.raisedHandTimestamp = raisedHandTimestamp;
 				if (recording !== undefined)
 					peer.recording = recording;
+				if (hivePosition !== undefined)
+					peer.hivePosition = hivePosition;
 			}
 		}),
 		updateTranscript: ((state, action: PayloadAction<PeerTranscript>) => {

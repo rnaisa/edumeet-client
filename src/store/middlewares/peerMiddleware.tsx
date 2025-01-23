@@ -38,6 +38,7 @@ const createPeerMiddleware = ({
 									raisedHand,
 									raisedHandTimestamp,
 									recording,
+									hivePosition
 								} = notification.data;
 
 								dispatch(peersActions.addPeer({
@@ -48,6 +49,7 @@ const createPeerMiddleware = ({
 									raisedHand,
 									raisedHandTimestamp,
 									recording,
+									hivePosition,
 									transcripts: [],
 								}));
 
@@ -90,6 +92,28 @@ const createPeerMiddleware = ({
 										picture,
 										raisedHand,
 										raisedHandTimestamp,
+										recording,
+									})
+								);
+
+								break;
+							}
+
+							case 'hivePosition': {
+								const {
+									peerId,
+									displayName,
+									picture,
+									hivePosition,
+									recording,
+								} = notification.data;
+
+								dispatch(
+									peersActions.updatePeer({
+										id: peerId,
+										displayName,
+										picture,
+										hivePosition,
 										recording,
 									})
 								);
