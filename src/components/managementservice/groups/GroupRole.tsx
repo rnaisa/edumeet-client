@@ -5,6 +5,7 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, TextFiel
 import { GroupRoles, Groups, Roles, Room } from '../../../utils/types';
 import { useAppDispatch } from '../../../store/hooks';
 import { createData, deleteData, getData, patchData } from '../../../store/actions/managementActions';
+import { addNewLabel, applyLabel, cancelLabel, deleteLabel, genericItemDescLabel, groupLabel, manageItemLabel, roleLabel, roomLabel, undefinedLabel } from '../../translated/translatedComponents';
 
 const GroupRoleTable = () => {
 	const dispatch = useAppDispatch();
@@ -48,12 +49,12 @@ const GroupRoleTable = () => {
 	]);
 
 	const getRoleName = (id: string): string => {
-		const t = roles.find((type) => type.id === parseInt(id));
+		const t = roles.find((type) => type.id == parseInt(id));
 	
 		if (t && t.name) {
 			return t.name;
 		} else {
-			return 'undefined role';
+			return `${undefinedLabel()} ${roleLabel()}`;
 		}
 	};
 
@@ -69,22 +70,22 @@ const GroupRoleTable = () => {
 	]);
 
 	const getGroupsName = (id: string): string => {
-		const t = groups.find((type) => type.id === parseInt(id));
+		const t = groups.find((type) => type.id == parseInt(id));
 	
 		if (t && t.name) {
 			return t.name;
 		} else {
-			return 'undefined group';
+			return `${undefinedLabel()} ${groupLabel()}`;
 		}
 	};
 
 	const getRoomName = (id: string): string => {
-		const t = rooms.find((type) => type.id === parseInt(id));
+		const t = rooms.find((type) => type.id == parseInt(id));
 	
 		if (t && t.name) {
 			return t.name;
 		} else {
-			return 'undefined room';
+			return `${undefinedLabel()} ${roomLabel()}`;
 		}
 	};
 	
@@ -97,19 +98,19 @@ const GroupRoleTable = () => {
 			},
 			{
 				accessorKey: 'groupId',
-				header: 'Group',
+				header: groupLabel(),
 				Cell: ({ cell }) => getGroupsName(cell.getValue<string>())
 
 			},
 			{
 				accessorKey: 'roleId',
-				header: 'Role',
+				header: roleLabel(),
 				Cell: ({ cell }) => getRoleName(cell.getValue<string>())
 
 			},
 			{
 				accessorKey: 'roomId',
-				header: 'Room',
+				header: roomLabel(),
 				Cell: ({ cell }) => getRoomName(cell.getValue<string>())
 
 			},
@@ -211,19 +212,31 @@ const GroupRoleTable = () => {
 
 	const handleGroupIdChange = (event: SyntheticEvent<Element, Event>, newValue: Groups) => {
 		if (newValue) {
-			setGroupId(newValue.id);
+			if (typeof newValue.id != 'number') {
+				setGroupId(parseInt(newValue.id));
+			} else {
+				setGroupId(newValue.id);
+			}
 			setGroupIdOption(newValue);
 		}
 	};
 	const handleRoleIdChange = (event: SyntheticEvent<Element, Event>, newValue: Roles) => {
 		if (newValue) {
-			setRoleId(newValue.id);
+			if (typeof newValue.id != 'number') {
+				setRoleId(parseInt(newValue.id));
+			} else {
+				setRoleId(newValue.id);
+			}
 			setRoleIdOption(newValue);
 		}
 	};
 	const handleRoomIdChange = (event: SyntheticEvent<Element, Event>, newValue: Room) => {
-		if (newValue && typeof newValue.id === 'number') {
-			setRoomId(newValue.id);
+		if (newValue && newValue.id) {
+			if (typeof newValue.id != 'number') {
+				setRoomId(parseInt(newValue.id));
+			} else {
+				setRoomId(newValue.id);
+			}
 			setRoomIdOption(newValue);
 		}
 	};
@@ -273,14 +286,14 @@ const GroupRoleTable = () => {
 	return <>
 		<div>
 			<Button variant="outlined" onClick={() => handleClickOpen()}>
-				Add new
+				{addNewLabel()}
 			</Button>
 			<hr/>
 			<Dialog open={open} onClose={handleClose}>
-				<DialogTitle>Add/Edit</DialogTitle>
+				<DialogTitle>{manageItemLabel()}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						These are the parameters that you can change.
+						{genericItemDescLabel()}
 					</DialogContentText>
 					<input type="hidden" name="id" value={id} />
 					<Autocomplete
@@ -292,7 +305,7 @@ const GroupRoleTable = () => {
 						onChange={handleGroupIdChange}
 						value={groupIdOption}
 						sx={{ marginTop: '8px' }}
-						renderInput={(params) => <TextField {...params} label="User" />}
+						renderInput={(params) => <TextField {...params} label={groupLabel()} />}
 					/>
 					<Autocomplete
 						options={roles}
@@ -303,7 +316,7 @@ const GroupRoleTable = () => {
 						onChange={handleRoleIdChange}
 						value={roleIdOption}
 						sx={{ marginTop: '8px' }}
-						renderInput={(params) => <TextField {...params} label="Role" />}
+						renderInput={(params) => <TextField {...params} label={roleLabel()} />}
 					/>
 					<Autocomplete
 						options={rooms}
@@ -314,14 +327,14 @@ const GroupRoleTable = () => {
 						onChange={handleRoomIdChange}
 						value={roomIdOption}
 						sx={{ marginTop: '8px' }}
-						renderInput={(params) => <TextField {...params} label="Room" />}
+						renderInput={(params) => <TextField {...params} label={roomLabel()} />}
 					/>
 					
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={delTenant} disabled={cantDelete} color='warning'>Delete</Button>
-					<Button onClick={handleClose}>Cancel</Button>
-					<Button onClick={addTenant} disabled={cantPatch}>OK</Button>
+					<Button onClick={delTenant} disabled={cantDelete} color='warning'>{deleteLabel()}</Button>
+					<Button onClick={handleClose}>{cancelLabel()}</Button>
+					<Button onClick={addTenant} disabled={cantPatch}>{applyLabel()}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>
@@ -338,15 +351,19 @@ const GroupRoleTable = () => {
 
 					if (typeof tid === 'number') {
 						setId(tid);
-					}
-					if (typeof tgroupId === 'string') {
-						setGroupId(parseInt(tgroupId));
-					} else {
-						setGroupId(0);
+					} else if (typeof tid == 'string') {
+						setId(parseInt(tid));
 					}
 
-					if (typeof tgroupId === 'string') {
-						const tgroup = groups.find((x) => x.id === parseInt(tgroupId));
+					if (typeof tgroupId === 'number') {
+						const tgroup = groups.find((x) => x.id == tgroupId);
+
+						if (tgroup) {
+							setGroupIdOption(tgroup);
+						}
+						setGroupId(tgroupId);
+					} else if (typeof tgroupId === 'string') {
+						const tgroup = groups.find((x) => x.id == parseInt(tgroupId));
 
 						if (tgroup) {
 							setGroupIdOption(tgroup);
@@ -357,8 +374,15 @@ const GroupRoleTable = () => {
 						setGroupIdOption(undefined);
 					}
 
-					if (typeof troleId === 'string') {
-						const troles = roles.find((x) => x.id === parseInt(troleId));
+					if (typeof troleId === 'number') {
+						const troles = roles.find((x) => x.id == troleId);
+
+						if (troles) {
+							setRoleIdOption(troles);
+						}
+						setRoleId(troleId);
+					} else if (typeof troleId === 'string') {
+						const troles = roles.find((x) => x.id == parseInt(troleId));
 
 						if (troles) {
 							setRoleIdOption(troles);
@@ -368,8 +392,15 @@ const GroupRoleTable = () => {
 						setRoleId(0);
 						setRoleIdOption(undefined);
 					}
-					if (typeof troomId === 'string') {
-						const troom = rooms.find((x) => x.id === parseInt(troomId));
+					if (typeof troomId === 'number') {
+						const troom = rooms.find((x) => x.id == troomId);
+
+						if (troom) {
+							setRoomIdOption(troom);
+						}
+						setRoomId(troomId);
+					} else if (typeof troomId === 'string') {
+						const troom = rooms.find((x) => x.id == parseInt(troomId));
 
 						if (troom) {
 							setRoomIdOption(troom);

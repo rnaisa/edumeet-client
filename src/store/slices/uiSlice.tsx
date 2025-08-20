@@ -13,12 +13,15 @@ export interface UiState {
 	helpOpen: boolean;
 	aboutOpen: boolean;
 	lobbyDialogOpen: boolean;
+	backgroundSelectDialogOpen: boolean;
+	videoBackgroundDialogOpen: boolean;
 	extraVideoDialogOpen: boolean;
 	extraAudioDialogOpen: boolean;
 	currentSettingsTab: SettingsTab;
 	showStats: boolean;
 	chatOpen: boolean;
 	participantListOpen: boolean;
+	drawingOpen: boolean;
 }
 
 type UiUpdate = Partial<Omit<UiState, 'currentSettingsTab'>>;
@@ -32,11 +35,14 @@ const initialState: UiState = {
 	helpOpen: false,
 	aboutOpen: false,
 	lobbyDialogOpen: false,
+	backgroundSelectDialogOpen: false,
+	videoBackgroundDialogOpen: false,
 	extraVideoDialogOpen: false,
 	extraAudioDialogOpen: false,
 	currentSettingsTab: 'media',
 	chatOpen: false,
 	participantListOpen: false,
+	drawingOpen: false
 };
 
 const uiSlice = createSlice({
