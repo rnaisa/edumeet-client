@@ -6,6 +6,7 @@ import React from 'react';
 import { Roles, Tenant, Permissions, RolePermissions } from '../../../utils/types';
 import { useAppDispatch } from '../../../store/hooks';
 import { createData, deleteData, getData, patchData } from '../../../store/actions/managementActions';
+import { addNewLabel, applyLabel, cancelLabel, deleteLabel, descLabel, genericItemDescLabel, manageItemLabel, nameLabel, tenantLabel } from '../../translated/translatedComponents';
 
 const RoleTable = () => {
 	const dispatch = useAppDispatch();
@@ -15,7 +16,7 @@ const RoleTable = () => {
 	const [ tenants, setTenants ] = useState<TenantOptionTypes>([ { 'id': 0, 'name': '', 'description': '' } ]);
 
 	const getTenantName = (id: string): string => {
-		const t = tenants.find((type) => type.id === parseInt(id));
+		const t = tenants.find((type) => type.id == parseInt(id));
 
 		if (t && t.name) {
 			return t.name;
@@ -34,15 +35,15 @@ const RoleTable = () => {
 			},
 			{
 				accessorKey: 'name',
-				header: 'Name'
+				header: nameLabel()
 			},
 			{
 				accessorKey: 'description',
-				header: 'description'
+				header: descLabel()
 			},
 			{
 				accessorKey: 'tenantId',
-				header: 'Tenant',
+				header: tenantLabel(),
 				Cell: ({ cell }) => getTenantName(cell.getValue<string>())
 
 			},
@@ -68,7 +69,7 @@ const RoleTable = () => {
 	const [ tenantId, setTenantId ] = useState(0);
 
 	const [ cantPatch ] = useState(false);
-	const [ cantDelete ] = useState(false);
+	const [ cantDelete, setCantDelete ] = useState(false);
 	const [ tenantIdOption, setTenantIdOption ] = useState<Tenant | undefined>();
 
 	async function fetchProduct() {
@@ -120,13 +121,18 @@ const RoleTable = () => {
 		setName('');
 		setDescription('');
 		setTenantId(0);
+		setCantDelete(true);
 		setChecked(new Array(permissions.length).fill(false));
-
+		setCheckedDisabled(true);
 		setOpen(true);
 	};
 
 	const handleClickOpenNoreset = () => {
+		setCheckedDisabled(false);
+		setCantDelete(false);
+		setChecked(new Array(permissions.length).fill(false));
 		setOpen(true);
+
 	};
 
 	const handleNameChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
@@ -137,7 +143,11 @@ const RoleTable = () => {
 	};
 	const handleTenantIdChange = (event: SyntheticEvent<Element, Event>, newValue: Tenant) => {
 		if (newValue) {
-			setTenantId(newValue.id);
+			if (typeof newValue.id != 'number') {
+				setTenantId(parseInt(newValue.id));
+			} else {
+				setTenantId(newValue.id);
+			}
 			setTenantIdOption(newValue);
 		}
 	};
@@ -186,14 +196,13 @@ const RoleTable = () => {
 
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			dispatch(getData('rolePermissions')).then((rp: any) => {
-
 				checked.forEach(async (element, index) => {
-					const c = rp.data.filter((x: RolePermissions) => x.permissionId == index+1);
+					
+					const c = rp.data.filter((x: RolePermissions) => x.permissionId == index+1 && x.roleId==id);
 
 					if ((c.length === 0) === element) {
 	
 						if (element) {
-
 							dispatch(createData({ 
 								roleId: id,
 								permissionId: index+1
@@ -226,6 +235,7 @@ const RoleTable = () => {
 	const [ permissions, setPermissions ] = React.useState(Array<Permissions>);
 
 	const [ checked, setChecked ] = React.useState(new Array(0).fill(true));
+	const [ checkedDisabled, setCheckedDisabled ] = React.useState(false);
 
 	const handleChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setChecked(new Array(permissions.length).fill(event.target.checked));
@@ -243,6 +253,7 @@ const RoleTable = () => {
 		<Box sx={{ display: 'flex', flexDirection: 'column', ml: 3 }}>
 			{Object.entries(permissions).map(([ key, value ]) =>
 				<FormControlLabel
+					disabled={checkedDisabled}
 					key={`${key}uniqe`}
 					control={<Checkbox checked={checked[parseInt(key)]}
 						onChange={(event) => handleChangeMod(event, parseInt(key))
@@ -258,21 +269,21 @@ const RoleTable = () => {
 	return <>
 		<div>
 			<Button variant="outlined" onClick={() => handleClickOpen()}>
-				Add new
+				{addNewLabel()}
 			</Button>
 			<hr />
 			<Dialog open={open} onClose={handleClose}>
-				<DialogTitle>Add/Edit</DialogTitle>
+				<DialogTitle>{manageItemLabel()}</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						These are the parameters that you can change.
+						{genericItemDescLabel()}
 					</DialogContentText>
 					<input type="hidden" name="id" value={id} />
 					<TextField
 						autoFocus
 						margin="dense"
 						id="name"
-						label="name"
+						label={nameLabel()}
 						type="text"
 						required
 						fullWidth
@@ -283,9 +294,8 @@ const RoleTable = () => {
 						autoFocus
 						margin="dense"
 						id="description"
-						label="description"
+						label={descLabel()}
 						type="text"
-						required
 						fullWidth
 						onChange={handleDescriptionChange}
 						value={description}
@@ -299,13 +309,14 @@ const RoleTable = () => {
 						onChange={handleTenantIdChange}
 						value={tenantIdOption}
 						sx={{ marginTop: '8px' }}
-						renderInput={(params) => <TextField {...params} label="Tenant" />}
+						renderInput={(params) => <TextField {...params} label={tenantLabel()} />}
 					/>
 					<div>
 						<FormControlLabel
 							label="All permissions"
 							control={
 								<Checkbox
+									disabled={checkedDisabled}
 									checked={checked.every((num) => num === true)}
 									indeterminate={checked.some((num) => num === true) && checked.some((num) => num === false)}
 									onChange={handleChange1}
@@ -316,9 +327,9 @@ const RoleTable = () => {
 					</div>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={delTenant} disabled={cantDelete} color='warning'>Delete</Button>
-					<Button onClick={handleClose}>Cancel</Button>
-					<Button onClick={addTenant} disabled={cantPatch}>OK</Button>
+					<Button onClick={delTenant} disabled={cantDelete} color='warning'>{deleteLabel()}</Button>
+					<Button onClick={handleClose}>{cancelLabel()}</Button>
+					<Button onClick={addTenant} disabled={cantPatch}>{applyLabel()}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>
@@ -335,7 +346,10 @@ const RoleTable = () => {
 
 					if (typeof tid === 'number') {
 						setId(tid);
+					} else if (typeof tid == 'string') {
+						setId(parseInt(tid));
 					}
+
 					if (typeof tname === 'string') {
 						setName(tname);
 					} else {
@@ -346,8 +360,15 @@ const RoleTable = () => {
 					} else {
 						setDescription('');
 					}
-					if (typeof ttenantId === 'string') {
-						const ttenant = tenants.find((x) => x.id === parseInt(ttenantId));
+					if (typeof ttenantId === 'number') {
+						const ttenant = tenants.find((x) => x.id == ttenantId);
+
+						if (ttenant) {
+							setTenantIdOption(ttenant);
+						}
+						setTenantId(ttenantId);
+					} else if (typeof ttenantId === 'string') {
+						const ttenant = tenants.find((x) => x.id == parseInt(ttenantId));
 
 						if (ttenant) {
 							setTenantIdOption(ttenant);
@@ -362,7 +383,8 @@ const RoleTable = () => {
 						const a = new Array(permissions.length).fill(false);
 
 						rp.data.forEach((element: RolePermissions) => {
-							a[element.permissionId-1] = true;
+							if (element.roleId == tid)
+								a[parseInt(element.permissionId.toString())-1] = true;
 						});
 				
 						setChecked(a);

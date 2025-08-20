@@ -9,51 +9,43 @@ import ListItemText from '@mui/material/ListItemText/ListItemText';
 import InfoIcon from '@mui/icons-material/Info';
 import SignIn from './managementsettings/ManagementAdminLoginSettings';
 import List from '@mui/material/List';
+import { managementAdvancedSettingsLabel, managementRoomSettingsLabel } from '../translated/translatedComponents';
 
 const ManagementSettings = (): JSX.Element => {
 	const dispatch = useAppDispatch();
-
-	useEffect(() => {
-		dispatch(getUserData()).then(() => {});
-	}, []);
 	const loggedIn = useAppSelector((state) => state.permissions.loggedIn);
 
 	useEffect(() => {
-	}, [ loggedIn ]);
+		dispatch(getUserData());
+	}, []);
 
-	// Function to render the selected component in the placeholder
 	const renderComponent = () => {
 
-		if (loggedIn) {
-
-			return <>
-				<List>
-					<ListItem key={'Room settings'} disablePadding >
-						<ListItemButton>
-							<ListItemText primary={'Room settings'} />
-						</ListItemButton>
-					</ListItem>
-					<CurrentRoomModal />
-					<ListItem key={'Management settings'} disablePadding style={{ textDecoration: 'none' }} onClick={() => window.open('/mgmt-admin', 'edumeet-mgmt')}>
-						<ListItemButton>
-							<ListItemIcon>
-								<InfoIcon />
-							</ListItemIcon>
-							<ListItemText primary={'Advanced management settings'} />
-						</ListItemButton>
-					</ListItem>
-				</List>
-			</>;
-		} else {
+		if (!loggedIn) {
 			return <SignIn />;
 		}
+
+		return (
+			<List>
+				<ListItem key={'Room settings'} disablePadding >
+					<ListItemButton>
+						<ListItemText primary={managementRoomSettingsLabel()} />
+					</ListItemButton>
+				</ListItem>
+				<CurrentRoomModal />
+				<ListItem key={'Management settings'} disablePadding style={{ textDecoration: 'none' }} onClick={() => window.open('/mgmt-admin', 'edumeet-mgmt')}>
+					<ListItemButton>
+						<ListItemIcon>
+							<InfoIcon />
+						</ListItemIcon>
+						<ListItemText primary={managementAdvancedSettingsLabel()} />
+					</ListItemButton>
+				</ListItem>
+			</List>
+		);
 	};
 
-	return (
-		<>
-			{renderComponent()}
-		</>
-	);
+	return renderComponent();
 };
 
 export default ManagementSettings;

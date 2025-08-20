@@ -6,6 +6,7 @@ import { Roles, Room, User, UsersRoles } from '../../../utils/types';
 import { useAppDispatch } from '../../../store/hooks';
 import { createData, deleteData, getData, /* getDataByRoomId, */ patchData } from '../../../store/actions/managementActions';
 import { RoomProp } from './Room';
+import { userLabel } from '../../translated/translatedComponents';
 
 const RoomUserRoleTable = (props: RoomProp) => {
 	const roomId = props.roomId;
@@ -107,7 +108,7 @@ const RoomUserRoleTable = (props: RoomProp) => {
 			},
 			{
 				accessorKey: 'userId',
-				header: 'User',
+				header: userLabel(),
 				Cell: ({ cell }) => getUserName(cell.getValue<string>())
 
 			},
@@ -228,13 +229,21 @@ const RoomUserRoleTable = (props: RoomProp) => {
 
 	const handleUserIdChange = (event: SyntheticEvent<Element, Event>, newValue: User) => {
 		if (newValue) {
-			setUserId(newValue.id);
+			if (typeof newValue.id != 'number') {
+				setUserId(parseInt(newValue.id));
+			} else {
+				setUserId(newValue.id);
+			}
 			setUserIdOption(newValue);
 		}
 	};
 	const handleRoleIdChange = (event: SyntheticEvent<Element, Event>, newValue: Roles) => {
 		if (newValue) {
-			setRoleId(newValue.id);
+			if (typeof newValue.id != 'number') {
+				setRoleId(parseInt(newValue.id));
+			} else {
+				setRoleId(newValue.id);
+			}
 			setRoleIdOption(newValue);
 		}
 	};
@@ -346,9 +355,19 @@ const RoomUserRoleTable = (props: RoomProp) => {
 
 					if (typeof tid === 'number') {
 						setId(tid);
+					} else if (typeof tid == 'string') {
+						setId(parseInt(tid));
 					}
-					if (typeof tuserId === 'string') {
-						const tuser = users.find((x) => x.id === parseInt(tuserId));
+
+					if (typeof tuserId === 'number') {
+						const tuser = users.find((x) => x.id == tuserId);
+
+						if (tuser) {
+							setUserIdOption(tuser);
+						}
+						setUserId(tuserId);
+					} else if (typeof tuserId === 'string') {
+						const tuser = users.find((x) => x.id == parseInt(tuserId));
 
 						if (tuser) {
 							setUserIdOption(tuser);
@@ -359,8 +378,15 @@ const RoomUserRoleTable = (props: RoomProp) => {
 						setUserIdOption(undefined);
 					}
 					
-					if (typeof troleId === 'string') {
-						const troles = roles.find((x) => x.id === parseInt(troleId));
+					if (typeof troleId === 'number') {
+						const troles = roles.find((x) => x.id == troleId);
+
+						if (troles) {
+							setRoleIdOption(troles);
+						}
+						setRoleId(troleId);
+					} else if (typeof troleId === 'string') {
+						const troles = roles.find((x) => x.id == parseInt(troleId));
 
 						if (troles) {
 							setRoleIdOption(troles);

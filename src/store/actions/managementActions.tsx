@@ -1,5 +1,6 @@
 import { Logger } from '../../utils/Logger';
 import { notificationsActions } from '../slices/notificationsSlice';
+import { permissionsActions } from '../slices/permissionsSlice';
 import { AppThunk } from '../store';
 
 const logger = new Logger('ManagementActions');
@@ -57,8 +58,10 @@ export const getData = (serviceName:string): AppThunk<Promise<object | undefined
 		data = await (await managementService).service(serviceName).find(
 			{
 				query: {
+					$limit: 9999,
 					$sort: {
-						id: 1
+						id: 1,
+					
 					}
 				}
 			}
@@ -92,8 +95,45 @@ export const getDataByID = (id:string|number, serviceName:string): AppThunk<Prom
 			{
 				query: {
 					id: id,
+					$limit: 9999,
 					$sort: {
-						id: 1
+						id: 1,
+						
+					}
+				}
+			}
+		);
+	
+	} catch (error) {
+		if (error instanceof Error) {
+			dispatch(notificationsActions.enqueueNotification({
+				message: `Failed to get data: ${error.toString()}`,
+				options: { variant: 'error' }
+			}));
+		}
+	}
+
+	return data;
+};
+export const getDataByTenantID = (id:string|number, serviceName:string): AppThunk<Promise<object | undefined>> => async (
+	dispatch,
+	_getState,
+	{ managementService }
+): Promise<object | undefined> => {
+
+	logger.debug('getDataByTenantID() [serviceName:%s]', serviceName);
+
+	let data: object | undefined;
+
+	try {
+
+		data = await (await managementService).service(serviceName).find(
+			{
+				query: {
+					tenantId: id,
+					$limit: 9999,
+					$sort: {
+						id: 1,
 					}
 				}
 			}
@@ -315,4 +355,36 @@ export const createRoomWithParams = (params : object): AppThunk<Promise<object |
 	}
 
 	return data;
+};
+
+// eslint-disable-next-line no-unused-vars
+let messageListener: (event: MessageEvent) => void;
+
+export const startMGMTListeners = (): AppThunk<Promise<void>> => async (
+	dispatch,
+	getState,
+	{ signalingService, managementService }
+): Promise<void> => {
+	logger.debug('startMGMTListeners()');
+
+	messageListener = async ({ data }: MessageEvent) => {
+		if (data.type === 'edumeet-login') {
+			const { data: token } = data;
+
+			await (await managementService).authentication.setAccessToken(token);
+
+			dispatch(permissionsActions.setToken(token));
+			dispatch(permissionsActions.setLoggedIn(true));
+
+			if (getState().signaling.state === 'connected')
+				await signalingService.sendRequest('updateToken', { token }).catch((e) => logger.error('updateToken request failed [error: %o]', e));
+		}
+	};
+
+	window.addEventListener('message', messageListener);
+};
+
+export const stopMGMTListeners = (): AppThunk<Promise<void>> => async (): Promise<void> => {
+	logger.debug('stopListeners()');
+	window.removeEventListener('message', messageListener);
 };

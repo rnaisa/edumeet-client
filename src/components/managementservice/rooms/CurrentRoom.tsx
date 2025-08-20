@@ -1,16 +1,17 @@
 import { SyntheticEvent, useEffect, useState } from 'react';
 // eslint-disable-next-line camelcase
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, FormControlLabel, Checkbox, Autocomplete } from '@mui/material';
-import { Roles, Room, Tenant } from '../../../utils/types';
+import { Roles, Room } from '../../../utils/types';
 import { useAppDispatch } from '../../../store/hooks';
 import { createRoom, getData, getRoomByName, patchData } from '../../../store/actions/managementActions';
+import { applyLabel, breakoutsEnabledLabel, cancelLabel, chatEnabledLabel, claimRoomLabel, defaultLabel, descLabel, editRoomLabel, filesharingEnabledLabel, genericItemDescLabel, localRecordingEnabledLabel, lockRoomLabel, logoLabel, manageItemLabel, maxActiveVideosLabel, nameLabel, raiseHandEnabledLabel, roleLabel, roomBgLabel } from '../../translated/translatedComponents';
 
 const CurrentRoomModal = () => {
 	const dispatch = useAppDispatch();
 
-	type TenantOptionTypes = Array<Tenant>
+	/* type TenantOptionTypes = Array<Tenant> */
 
-	const [ tenants, setTenants ] = useState<TenantOptionTypes>([ { 'id': 0, 'name': '', 'description': '' } ]);
+	/* const [ tenants, setTenants ] = useState<TenantOptionTypes>([ { 'id': 0, 'name': '', 'description': '' } ]); */
 
 	type RoleTypes = Array<Roles>
 
@@ -34,133 +35,146 @@ const CurrentRoomModal = () => {
 	const [ filesharingEnabled, setFilesharingEnabled ] = useState(false);
 	const [ localRecordingEnabled, setLocalRecordingEnabled ] = useState(false);
 	
-	const [ tenantIdOption, setTenantIdOption ] = useState<Tenant | undefined>();
+	/* const [ tenantIdOption, setTenantIdOption ] = useState<Tenant | undefined>(); */
 	const [ defaultRoleIdOption, setDefaultRoleIdOption ] = useState<Roles | undefined>();
 
 	const [ cantPatch ] = useState(false);
 
 	async function fetchProduct() {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		dispatch(getData('tenants')).then((tdata: any) => {
+		/* dispatch(getData('tenants')).then((tdata: any) => {
 			if (tdata != undefined) {
 				setTenants(tdata.data);
 			}
-		});
+		}); */
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		dispatch(getData('roles')).then((tdata: any) => {
-			if (tdata != undefined) {
-				setRoles(tdata.data);
+		dispatch(getData('roles')).then((tdat: any) => {
+			if (tdat != undefined) {
+				setRoles(tdat.data);
 			}
-		});
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		dispatch(getRoomByName(window.location.pathname.substring(1))).then((tdata: any) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			dispatch(getRoomByName(window.location.pathname.substring(1))).then((tdata: any) => {
 			
-			const r = tdata.data[0] as Room;
+				const r = tdata.data[0] as Room;
 
-			const tid = r.id;
-			const tname=r.name;
-			const tdescription=r.description;
-			const tdefaultroleId=r.defaultRoleId;
-			const ttenantId=r.tenantId;
-			const tlogo=r.logo;
-			const tbackground=r.background;
-			const tmaxActiveVideos=r.maxActiveVideos;
-			const tlocked=r.locked;
-			const tchatEnabled=r.chatEnabled;
-			const traiseHandEnabled=r.raiseHandEnabled;
-			const tfilesharingEnabled=r.filesharingEnabled;
-			const tlocalRecordingEnabled=r.localRecordingEnabled;
-			const tbreakoutsEnabled=r.breakoutsEnabled;
+				const tid = r.id;
+				const tname=r.name;
+				const tdescription=r.description;
+				const tdefaultroleId=r.defaultRoleId;
+				const ttenantId=r.tenantId;
+				const tlogo=r.logo;
+				const tbackground=r.background;
+				const tmaxActiveVideos=r.maxActiveVideos;
+				const tlocked=r.locked;
+				const tchatEnabled=r.chatEnabled;
+				const traiseHandEnabled=r.raiseHandEnabled;
+				const tfilesharingEnabled=r.filesharingEnabled;
+				const tlocalRecordingEnabled=r.localRecordingEnabled;
+				const tbreakoutsEnabled=r.breakoutsEnabled;
 
-			if (typeof tid === 'number') {
-				setId(tid);
-			}
-			if (typeof tname === 'string') {
-				setName(tname);
-			} else {
-				setName('');
-			}
-			if (typeof tdescription === 'string') {
-				setDescription(tdescription);
-			} else {
-				setDescription('');
-			}
+				if (typeof tid === 'number') {
+					setId(tid);
+				} else if (typeof tid == 'string') {
+					setId(parseInt(tid));
+				}
 
-			if (typeof tdefaultroleId === 'string') {
-				const tdefaultrole = roles.find((x) => x.id === parseInt(tdefaultroleId));
-
-				if (tdefaultrole) {
-					setDefaultRoleIdOption(tdefaultrole);
+				if (typeof tname === 'string') {
+					setName(tname);
 				} else {
+					setName('');
+				}
+				if (typeof tdescription === 'string') {
+					setDescription(tdescription);
+				} else {
+					setDescription('');
+				}
+
+				if (typeof tdefaultroleId === 'number') {
+					const tdefaultrole = tdat.data.find((x: { id: number; }) => x.id == tdefaultroleId);
+
+					if (tdefaultrole) {
+						setDefaultRoleIdOption(tdefaultrole);
+					} else {
+						setDefaultRoleIdOption(undefined);
+					}
+					setDefaultRoletId(tdefaultroleId);
+				} else if (typeof tdefaultroleId === 'string') {
+					const tdefaultrole = tdat.data.find((x: { id: number; }) => x.id == parseInt(tdefaultroleId));
+
+					if (tdefaultrole) {
+						setDefaultRoleIdOption(tdefaultrole);
+					} else {
+						setDefaultRoleIdOption(undefined);
+					}
+					setDefaultRoletId(parseInt(tdefaultroleId));
+				} else {
+					setDefaultRoletId(0);
 					setDefaultRoleIdOption(undefined);
 				}
-				setDefaultRoletId(parseInt(tdefaultroleId));
-			} else {
-				setDefaultRoletId(0);
-				setDefaultRoleIdOption(undefined);
-			}
-			if (typeof ttenantId === 'string') {
-				const ttenant = tenants.find((x) => x.id === parseInt(ttenantId));
+				if (typeof ttenantId === 'number') {
+					setTenantId(ttenantId);
+				} else if (typeof ttenantId === 'string') {
+				/* const ttenant = tenants.find((x) => x.id === parseInt(ttenantId));
 
 				if (ttenant) {
 					setTenantIdOption(ttenant);
+				} */
+					setTenantId(parseInt(ttenantId));
+				} else {
+					setTenantId(0);
 				}
-				setTenantId(parseInt(ttenantId));
-			} else {
-				setTenantId(0);
-			}
 
-			if (typeof tlogo === 'string') {
-				setLogo(tlogo);
-			} else {
-				setLogo('');
-			}
-			if (typeof tbackground === 'string') {
-				setBackground(tbackground);
-			} else {
-				setBackground('');
-			}
-			if (typeof tmaxActiveVideos === 'number') {
-				setMaxActiveVideos(tmaxActiveVideos);
-			} else {
-				setMaxActiveVideos(0);
-			}
+				if (typeof tlogo === 'string') {
+					setLogo(tlogo);
+				} else {
+					setLogo('');
+				}
+				if (typeof tbackground === 'string') {
+					setBackground(tbackground);
+				} else {
+					setBackground('');
+				}
+				if (typeof tmaxActiveVideos === 'number') {
+					setMaxActiveVideos(tmaxActiveVideos);
+				} else {
+					setMaxActiveVideos(0);
+				}
 
-			if (tlocked === true) {
-				setLocked(true);
-			} else {
-				setLocked(false);
-			}
-			if (tchatEnabled === true) {
-				setChatEnabled(true);
-			} else {
-				setChatEnabled(false);
-			}
-			if (traiseHandEnabled === true) {
-				setRaiseHandEnabled(true);
-			} else {
-				setRaiseHandEnabled(false);
-			}
-			if (tfilesharingEnabled === true) {
-				setFilesharingEnabled(true);
-			} else {
-				setFilesharingEnabled(false);
-			}
-			if (tlocalRecordingEnabled === true) {
-				setLocalRecordingEnabled(true);
-			} else {
-				setLocalRecordingEnabled(false);
-			}
-			if (tbreakoutsEnabled === true) {
-				setBreakoutsEnabled(true);
-			} else {
-				setBreakoutsEnabled(false);
-			}
+				if (tlocked === true) {
+					setLocked(true);
+				} else {
+					setLocked(false);
+				}
+				if (tchatEnabled === true) {
+					setChatEnabled(true);
+				} else {
+					setChatEnabled(false);
+				}
+				if (traiseHandEnabled === true) {
+					setRaiseHandEnabled(true);
+				} else {
+					setRaiseHandEnabled(false);
+				}
+				if (tfilesharingEnabled === true) {
+					setFilesharingEnabled(true);
+				} else {
+					setFilesharingEnabled(false);
+				}
+				if (tlocalRecordingEnabled === true) {
+					setLocalRecordingEnabled(true);
+				} else {
+					setLocalRecordingEnabled(false);
+				}
+				if (tbreakoutsEnabled === true) {
+					setBreakoutsEnabled(true);
+				} else {
+					setBreakoutsEnabled(false);
+				}
 	
-			setOpen(true);
+				setOpen(true);
             
+			});
 		});
 
 	}
@@ -188,7 +202,11 @@ const CurrentRoomModal = () => {
 
 	const handleDefaultRoleIdChange = (event: SyntheticEvent<Element, Event>, newValue: Roles) => {
 		if (newValue) {
-			setDefaultRoletId(newValue.id);
+			if (typeof newValue.id != 'number') {
+				setDefaultRoletId(parseInt(newValue.id));
+			} else {
+				setDefaultRoletId(newValue.id);
+			}
 			setDefaultRoleIdOption(newValue);
 		}
 	};
@@ -258,17 +276,17 @@ const CurrentRoomModal = () => {
 
 	return <>
 		<Dialog open={open} onClose={handleClose}>
-			<DialogTitle>Add/Edit</DialogTitle>
+			<DialogTitle>{manageItemLabel()}</DialogTitle>
 			<DialogContent>
 				<DialogContentText>
-						These are the parameters that you can change.
+					{genericItemDescLabel()}
 				</DialogContentText>
 				<input type="hidden" name="id" value={id} />
 				<TextField
 					autoFocus
 					margin="dense"
 					id="name"
-					label="name"
+					label={nameLabel()}
 					type="text"
 					required
 					fullWidth
@@ -280,25 +298,13 @@ const CurrentRoomModal = () => {
 					autoFocus
 					margin="dense"
 					id="description"
-					label="description"
+					label={descLabel()}
 					type="text"
 					required
 					fullWidth
 					onChange={handleDescriptionChange}
 					value={description}
 				/>
-				{/* <TextField
-						autoFocus
-						margin="dense"
-						id="tenantId"
-						label="tenantId"
-						type="number"
-						disabled
-						required
-						fullWidth
-						onChange={handleTenantIdChange}
-						value={tenantId}
-					/> */}
 				<Autocomplete
 					options={roles}
 					getOptionLabel={(option) => option.name}
@@ -307,24 +313,13 @@ const CurrentRoomModal = () => {
 					onChange={handleDefaultRoleIdChange}
 					value={defaultRoleIdOption}
 					sx={{ marginTop: '8px' }}
-					renderInput={(params) => <TextField {...params} label="Default Role" />}
-				/>
-				<Autocomplete
-					options={tenants}
-					getOptionLabel={(option) => option.name}
-					fullWidth
-					disableClearable
-					readOnly
-					// onChange={handleTenantIdChange}
-					value={tenantIdOption}
-					sx={{ marginTop: '8px' }}
-					renderInput={(params) => <TextField {...params} label="Tenant" />}
+					renderInput={(params) => <TextField {...params} label={`${defaultLabel()} ${roleLabel()}`} />}
 				/>
 				<TextField
 					autoFocus
 					margin="dense"
 					id="logo"
-					label="logo"
+					label={logoLabel()}
 					type="text"
 					required
 					fullWidth
@@ -335,7 +330,7 @@ const CurrentRoomModal = () => {
 					autoFocus
 					margin="dense"
 					id="background"
-					label="background"
+					label={roomBgLabel()}
 					type="text"
 					required
 					fullWidth
@@ -346,30 +341,29 @@ const CurrentRoomModal = () => {
 					autoFocus
 					margin="dense"
 					id="maxActiveVideos"
-					label="maxActiveVideos"
+					label={maxActiveVideosLabel()}
 					type="number"
 					required
 					fullWidth
 					onChange={handleMaxActiveVideosChange}
 					value={maxActiveVideos}
 				/>
-				<FormControlLabel control={<Checkbox checked={locked} onChange={handleLockedChange} />} label="locked" />
-				<FormControlLabel control={<Checkbox checked={chatEnabled} onChange={handleChatEnabledChange} />} label="chatEnabled" />
-				<FormControlLabel control={<Checkbox checked={raiseHandEnabled} onChange={handleRaiseHandEnabledChange} />} label="raiseHandEnabled" />
-				<FormControlLabel control={<Checkbox checked={filesharingEnabled} onChange={handleFilesharingEnabledChange} />} label="filesharingEnabled" />
-				<FormControlLabel control={<Checkbox checked={localRecordingEnabled} onChange={handleLocalRecordingEnabledChange} />} label="localRecordingEnabled" />
-				<FormControlLabel control={<Checkbox checked={breakoutsEnabled} onChange={handleBreakoutsEnabledChange} />} label="breakoutsEnabled" />
+				<FormControlLabel control={<Checkbox checked={locked} onChange={handleLockedChange} />} label={lockRoomLabel()} />
+				<FormControlLabel control={<Checkbox checked={chatEnabled} onChange={handleChatEnabledChange} />} label={chatEnabledLabel()} />
+				<FormControlLabel control={<Checkbox checked={raiseHandEnabled} onChange={handleRaiseHandEnabledChange} />} label={raiseHandEnabledLabel()} />
+				<FormControlLabel control={<Checkbox checked={filesharingEnabled} onChange={handleFilesharingEnabledChange} />} label={filesharingEnabledLabel()} />
+				<FormControlLabel control={<Checkbox checked={localRecordingEnabled} onChange={handleLocalRecordingEnabledChange} />} label={localRecordingEnabledLabel()} />
+				<FormControlLabel control={<Checkbox checked={breakoutsEnabled} onChange={handleBreakoutsEnabledChange} />} label={breakoutsEnabledLabel()} />
 					
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={handleClose}>Cancel</Button>
-				<Button onClick={addTenant} disabled={cantPatch}>OK</Button>
+				<Button onClick={handleClose}>{cancelLabel()}</Button>
+				<Button onClick={addTenant} disabled={cantPatch}>{applyLabel()}</Button>
 			</DialogActions>
 		</Dialog>
 		<div style={{ margin: 'auto', textAlign: 'center' }}>
-			<Button onClick={ roomExists ? handleOpen : handleCreateRoom}>{ roomExists ? 'Edit':'Claim '}  Current Room</Button>				
+			<Button onClick={ roomExists ? handleOpen : handleCreateRoom}>{ roomExists ? editRoomLabel():claimRoomLabel()}</Button>				
 		</div>
-
 	</>;
 };
 
