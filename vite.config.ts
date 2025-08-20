@@ -11,7 +11,7 @@ export default defineConfig({
 		react({ babel: { parserOpts: {} } }),
 		eslint(),
 		viteTsconfigPaths(),
-		basicSsl(),
+		//basicSsl(),
 /* 		splitVendorChunkPlugin(),
  */		visualizer({
 			emitFile: false,
@@ -20,9 +20,10 @@ export default defineConfig({
 
 	],
 	server: {
-		https: true,
+		https: false,
 		port: 4443,
 		host: true,
+		strictPort: true,
 		hmr: {
 			path: '/vite/'
 		}
