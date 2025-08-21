@@ -118,7 +118,8 @@ const MainContent = (): JSX.Element => {
 			<ControlButtonsBar />
 			<MainContainer horizontal={horizontal ? 1 : 0} >
 				{ spotlightsVisible && <Spotlights windowSize={windowSize} horizontal={horizontal} videos={videosVisible} /> }
-				{ videosVisible && <Democratic windowSize={windowSize} horizontal={spotlightsVisible && horizontal} spotlights={spotlightsVisible} /> }
+				{/* { videosVisible && <Democratic windowSize={windowSize} horizontal={spotlightsVisible && horizontal} spotlights={spotlightsVisible} /> } */ }
+				{ videosVisible && <Democratic /> }
 			</MainContainer>
 			{ !isMobile && eitherOpen &&
 				<SideContent
